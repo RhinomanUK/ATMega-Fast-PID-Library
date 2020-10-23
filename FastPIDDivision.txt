@@ -1,0 +1,81 @@
+PID Division routines - assume that Ki can be an integer, based on F=8912, PWMout=10-bit and Tpid=10*Tc, AT2560@16MIPs
+
+Ki = 509.3				(509.3 = 0.062133789 in frequency domain)
+e =  157				error signal
+f =  8192				PID loop frequency
+ans = (509.3*157)/8192 = 9.7608		the ideal answer (but PWM out is an integer value anyway)
+
+//-------------------------------------------------------------------------------------------
+
+ // Floating point
+  volatile float        ki = 509.3;
+  volatile int           e = 157;
+  volatile unsigned int  f = 8192;
+  
+  int  i = (ki*e)/f;
+  
+  //answer = 9, takes approx. 53.2us/851cycles
+  
+//-------------------------------------------------------------------------------------------
+ 
+ // optimise frequency - fast integer
+ 
+  volatile unsigned long ki = 509;   	// using all longs!!
+  volatile unsigned long  e = 157;
+  volatile unsigned long  f = 8192;
+  
+  long  i = (ki*e)/f;
+  
+  // answer = 9, takes approx. 45.1us/721.6cycles
+  
+//-------------------------------------------------------------------------------------------
+ 
+ // optimise frequency - fast integer
+ 
+  volatile unsigned long ki = 509;   	// using longs for ki and e!
+  volatile unsigned long  e = 157;
+  volatile unsigned int  f = 8192;
+  
+  int  i = (ki*e)/f;
+  
+  answer = 9, takes approx. 44.2us/707.2cycles
+  
+//-------------------------------------------------------------------------------------------
+  
+  // fast no division
+ 
+  volatile unsigned long ki = 509;
+  volatile unsigned long  e = 157;
+  volatile unsigned int  f = 8192;
+  int temp = 0;
+  
+  int  i = (ki*e)>>11;
+
+	// answer = 9, takes approx. 14.8us/cycles 
+
+//-------------------------------------------------------------------------------------------
+  
+  // fixed point 
+		// (ki/f) = 0.062133789
+		// using 0:16 = 0x0FE8 (error=0%)
+		
+		volatile unsigned long m = 0x0FE8;
+		volatile unsigned long  e = 157;
+		
+		int i = (m*e) >> 16;
+		
+	// answer = 9, takes approx. 7.36us/cycles 
+	
+//-------------------------------------------------------------------------------------------
+
+  // fast no division - rescaled for >>16
+ 
+  volatile unsigned long   ki = 4072; 		// (509*8)
+  volatile unsigned long    e = 157;
+  // volatile unsigned int  f = 8192;  		// volatile unsigned int  f = 8192; (1/8192 = >>11)
+  int temp = 0;
+  
+  int  i = (ki*e)>>16;
+
+	// answer = 9, takes approx. 7.36us/cycles 
+
