@@ -1,4 +1,4 @@
 # Arduino-timing-tests
-Test code to demonstrate how to achieve accurate timing by using the Input capture Output Compare modules.
+Test code for various routines for more accurate timing and faster timing, developed for an Arduino Mega
 James Holland
-v1.0 23rd January 2018
+v2.0 23rd October 2020
